@@ -5,20 +5,24 @@ import com.example.practica.Helpers.Helpers;
 import com.loopj.android.http.*;
 
 public class HttpClient {
-    private static final String BASE_URL = "https://api.twitter.com/1/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
-    public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.get(getAbsoluteUrl(url), params, responseHandler);
+    //Helpers y Enums agregados desde el modelo ya que no se permiten atributos estaticos desde Helpers
+
+    public static void get(String url, RequestParams params,String token,String header, AsyncHttpResponseHandler responseHandler) {
+        client.addHeader(header,token);
+        client.get(url, params, responseHandler);
     }
 
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.post(getAbsoluteUrl(url), params, responseHandler);
+        client.post(url, params, responseHandler);
     }
 
-    private static String getAbsoluteUrl(String relativeUrl) {
-        return BASE_URL + relativeUrl;
+    public static  void getByid(int id,String url,RequestParams params,String token,String header, AsyncHttpResponseHandler asyncHttpResponseHandler){
+        client.addHeader(header,token);
+        client.get(url+id,params,asyncHttpResponseHandler);
     }
+
 
 }

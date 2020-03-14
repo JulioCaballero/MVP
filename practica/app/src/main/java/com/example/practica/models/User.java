@@ -1,11 +1,15 @@
 package com.example.practica.models;
 
-import com.example.practica.presents.LoginActivity;
-import com.loopj.android.http.AsyncHttpClient;
+import com.example.practica.Enums.Enums;
+import com.example.practica.Helpers.Helpers;
+import com.example.practica.Login.Login;
+import com.example.practica.presents.MainActivityPresent;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -17,6 +21,9 @@ public class User {
     private int edad;
     private String sexo;
     private String carrera;
+    private static ArrayList<User> lista = null;
+    private static User user = null;
+
 
 
     public User(){
@@ -53,9 +60,10 @@ public class User {
         this.id = id;
     }
 
-    public static void getAlumnos(final ArrayList<User> lista, AsyncHttpClient client, String header, String token, String http){
-        client.addHeader(header,token);
-        client.get(http, new AsyncHttpResponseHandler() {
+    public static void getAlumnos(final MainActivityPresent present){
+        lista = new ArrayList<>();
+        HttpClient.get(Helpers.getBaseUrl()+Enums.getAlumnos(),null,Login.getToken(),
+                Enums.getHeader(), new AsyncHttpResponseHandler() {
             @Override
             public void onStart() {
                 // called before request is started
@@ -67,9 +75,9 @@ public class User {
                 try {
                     String rs = new String(responseBody);
                     System.out.println(rs);
-                    //String content = new String(responseBody, "UTF-8");
+                    String content = new String(responseBody, "UTF-8");
+                    System.out.println(content);
                     JSONArray obj = new JSONArray(rs);
-
                     for (int i=0; i < obj.length();i++) {
                         lista.add(new User(
                                 Integer.parseInt(obj.getJSONObject(i).getString("id")),
@@ -78,11 +86,14 @@ public class User {
                                 Integer.parseInt(obj.getJSONObject(i).getString("edad")),
                                 obj.getJSONObject(i).getString("sexo"),
                                 obj.getJSONObject(i).getString("carrera")));
-                        System.out.println("Lista user"+lista.get(0).getNombre());
                     }
-                    System.out.println(obj.getJSONObject(0).getString("nombre"));
+                    System.out.println("Lista"+lista.get(0).getNombre());
+                    present.crearTabla(lista);
                     //Toast.makeText(getApplicationContext(),rs, Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
+                    System.out.println("error "+e);
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -116,6 +127,67 @@ public class User {
         });
     }
 
+    public static void getAlumnoByID(final int id,final MainActivityPresent present){
+        user = null;
+        HttpClient.getByid(id,Helpers.getBaseUrl()+Enums.getAlumnos(),null,Login.getToken(),
+                Enums.getHeader(), new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onStart() {
+                        // called before request is started
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        System.out.println(statusCode);
+                        try {
+
+                            String rs = new String(responseBody);
+                            JSONObject obj = new JSONObject(rs);
+
+                            user = new User(Integer.parseInt(obj.getString("id")),
+                                    obj.getString("nombre"),
+                                    obj.getString("apellidos"),
+                                    Integer.parseInt(obj.getString("edad")),
+                                    obj.getString("sexo"),
+                                    obj.getString("carrera"));
+
+                            present.dialog(user);
+                            //Toast.makeText(getApplicationContext(),rs, Toast.LENGTH_LONG).show();
+                        } catch (JSONException e) {
+                            System.out.println("error "+e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        switch(statusCode){
+                            case 401:
+                                //  Toast.makeText(getContext(), "401 !", Toast.LENGTH_LONG).show();
+                                break;
+                            case 404:
+                                //  Toast.makeText(getContext(), "404 !", Toast.LENGTH_LONG).show();
+                                break;
+                            case 400:
+                                //   Toast.makeText(getContext(), "400 !", Toast.LENGTH_LONG).show();
+                                break;
+                            case 500:
+                                //   Toast.makeText(getContext(), "500 !", Toast.LENGTH_LONG).show();
+                                break;
+                            default:
+                                //   Toast.makeText(getContext(), "Error !", Toast.LENGTH_LONG).show();
+                                break;
+                        }
+                        //String rs = new String(responseBody);
+                        //  Toast.makeText(getApplicationContext(),rs, Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onRetry(int retryNo) {
+                        System.out.println(retryNo);
+                    }
+                });
+    }
+
     public String getApellidos() {
         return apellidos;
     }
@@ -146,6 +218,10 @@ public class User {
 
     public void setCarrera(String carrera) {
         this.carrera = carrera;
+    }
+
+    public static ArrayList<User> getLista() {
+        return lista;
     }
 
     @Override

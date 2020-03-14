@@ -8,9 +8,8 @@ import android.os.Bundle;
 
 import com.example.practica.Login.Login;
 import com.example.practica.R;
-import com.example.practica.fragments.FirstFragment;
-import com.example.practica.fragments.SecondFragment;
-import com.example.practica.presents.LoginActivity;
+import com.example.practica.view.FirstFragment;
+import com.example.practica.view.SecondFragment;
 
 public class MainActivity extends AppCompatActivity implements FirstFragment.OnFragmentInteractionListener, SecondFragment.OnFragmentInteractionListener {
 

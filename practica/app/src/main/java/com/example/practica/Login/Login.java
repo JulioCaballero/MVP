@@ -17,5 +17,6 @@ public class Login {
     }
 
     public static void setToken(String token) {
+        Login.token = token;
     }
 }

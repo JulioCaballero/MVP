@@ -1,4 +1,4 @@
-package com.example.practica.presents;
+package com.example.practica.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +11,8 @@ import com.example.practica.Enums.Enums;
 import com.example.practica.Helpers.Helpers;
 import com.example.practica.Login.Login;
 import com.example.practica.R;
+import com.example.practica.models.HttpClient;
+import com.example.practica.presents.MainActivity;
 import com.loopj.android.http.*;
 import android.view.View;
 //import android.content.Context;
@@ -21,29 +23,6 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
     private EditText txtUser;
     private EditText txtPwd;
-    private AsyncHttpClient  client;
-
-    private String token;
-    private String username;
-    private  static  LoginActivity login;
-
-    public LoginActivity(){
-        login = this;
-        client = new AsyncHttpClient();
-    }
-
-    public static LoginActivity getInstance(){
-        return login;
-    }
-
-    public String getToken(){
-        return token;
-    }
-    public String getUsername(){
-        return username;
-    }
-
-    public AsyncHttpClient getClient(){return client;}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
         params.put("username", txtUser.getText());
         params.put("password", txtPwd.getText());
 
-        client.post(Helpers.getBaseUrl()+ Enums.getLogin(),params, new AsyncHttpResponseHandler() {
+        HttpClient.post(Helpers.getBaseUrl()+ Enums.getLogin(),params, new AsyncHttpResponseHandler() {
             @Override
             public void onStart() {
                 txtPwd.setText("");
@@ -80,10 +59,10 @@ public class LoginActivity extends AppCompatActivity {
                     String rs = new String(responseBody);
                     JSONObject  obj = new JSONObject(rs);
                     Login.setUsername(obj.getString("username"));
-                    Login.setToken(obj.getString("token"));
+                    Login.setToken("Token "+obj.getString("token"));
                     //String content = new String(responseBody, "UTF-8");
                     //JSONObject obj = new JSONObject(content);
-                    Toast.makeText(getApplicationContext(),"Bienvenido "+ username, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),"Bienvenido "+ Login.getUsername(), Toast.LENGTH_LONG).show();
                     goMain();
                 } catch (Exception e) {
                 }
@@ -108,8 +87,8 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Error !", Toast.LENGTH_LONG).show();
                         break;
                 }
-                String rs = new String(responseBody);
-                Toast.makeText(getApplicationContext(),rs, Toast.LENGTH_LONG).show();
+                //String rs = new String(responseBody);
+                //Toast.makeText(getApplicationContext(),rs, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -154,7 +133,5 @@ public class LoginActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
-
 
 }
